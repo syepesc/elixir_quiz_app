@@ -1,21 +1,31 @@
-# QuizApp
+# Quiz App
 
-**TODO: Add description**
+The second project from the book [Designing Elixir Systems with OTP](https://pragprog.com/titles/jgotp/designing-elixir-systems-with-otp/), a Quiz App! For full details, I highly encourage purchasing the book, you won't regret it!
 
-## Installation
+## How to run the project?
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `quiz_app` to your list of dependencies in `mix.exs`:
+- Install [mise](https://mise.jdx.dev/getting-started.html) (previously `rtx`) , `cd` into the project directory and run:
 
-```elixir
-def deps do
-  [
-    {:quiz_app, "~> 0.1.0"}
-  ]
-end
+```bash
+mise install
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/quiz_app>.
+- `cd` into the project directory and run the following to install and setup dependencies:
 
+```bash
+mix deps.get
+```
+
+```bash
+mix compile
+```
+
+- Run the project with
+
+```bash
+iex -S mix
+```
+
+- Use the project API
+
+[WIP]
