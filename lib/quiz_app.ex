@@ -7,7 +7,7 @@ defmodule QuizApp do
   and that question will be moved from `templates` to `used`. After all questions get asked
   onece, unless they are mastered in the meantime, they will move back form `used` to `templates`.
 
-  Getting an answer rigth will increment a record, and getting enough rigth in
+  Getting an answer right will increment a record, and getting enough right in
   a row will move a template from `used` to `mastered`. Getting an answer wrong will
   reset the record.
   "
