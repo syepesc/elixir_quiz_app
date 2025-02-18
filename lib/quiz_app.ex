@@ -1,28 +1,40 @@
 defmodule QuizApp do
-  @moduledoc """
-  Taken from the book (page 50):
+  alias QuizApp.Boundary.{QuizManager, QuizSession}
+  alias QuizApp.Boundary.{TemplateValidator, QuizValidator}
+  alias QuizApp.Core.Quiz
 
-  "
-  Initially, all questions will start in `templates`. The quiz will select a question,
-  and that question will be moved from `templates` to `used`. After all questions get asked
-  onece, unless they are mastered in the meantime, they will move back form `used` to `templates`.
+  def start_quiz_manager() do
+    GenServer.start_link(QuizManager, %{}, name: QuizManager)
+  end
 
-  Getting an answer right will increment a record, and getting enough right in
-  a row will move a template from `used` to `mastered`. Getting an answer wrong will
-  reset the record.
-  "
-  """
+  def build_quiz(fields) do
+    with :ok <- QuizValidator.errors(fields),
+         :ok <- GenServer.call(QuizManager, {:build_quiz, fields}),
+         do: :ok,
+         else: (error -> error)
+  end
 
-  @doc """
-  Hello world.
+  def add_template(title, fields) do
+    with :ok <- TemplateValidator.errors(fields),
+         :ok <- GenServer.call(QuizManager, {:add_template, title, fields}),
+         do: :ok,
+         else: (error -> error)
+  end
 
-  ## Examples
+  def take_quiz(title, email) do
+    with %Quiz{} = quiz <- QuizManager.lookup_quiz_by_title(title),
+         {:ok, session} <- GenServer.start_link(QuizSession, {quiz, email}) do
+      session
+    else
+      error -> error
+    end
+  end
 
-      iex> QuizApp.hello()
-      :world
+  def select_question(session) do
+    GenServer.call(session, :select_question)
+  end
 
-  """
-  def hello do
-    :world
+  def answer_question(session, answer) do
+    GenServer.call(session, {:answer_question, answer})
   end
 end
