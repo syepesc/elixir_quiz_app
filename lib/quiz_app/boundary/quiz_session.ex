@@ -5,17 +5,35 @@ defmodule QuizApp.Boundary.QuizSession do
   # ###########################################################################
   # Public API
   # ###########################################################################
-  def select_question(session) do
-    GenServer.call(session, :select_question)
+  def take_quiz(quiz, email) do
+    DynamicSupervisor.start_child(
+      QuizApp.Supervisor.QuizSession,
+      {__MODULE__, {quiz, email}}
+    )
   end
 
-  def answer_question(session, answer) do
-    GenServer.call(session, {:answer_question, answer})
+  def select_question({_title, _email} = name) do
+    GenServer.call(via(name), :select_question)
+  end
+
+  def answer_question({_title, _email} = name, answer) do
+    GenServer.call(via(name), {:answer_question, answer})
   end
 
   # ###########################################################################
   # GenServer callbacks
   # ###########################################################################
+  def child_spec({quiz, email}) do
+    %{
+      id: {__MODULE__, {quiz.title, email}},
+      start: {__MODULE__, :start_link, [{quiz, email}]},
+      restart: :temporary
+    }
+  end
+
+  def start_link({quiz, email}) do
+    GenServer.start_link(__MODULE__, {quiz, email}, name: via({quiz.title, email}))
+  end
 
   def init({quiz, email}) do
     {:ok, {quiz, email}}
@@ -37,5 +55,9 @@ defmodule QuizApp.Boundary.QuizSession do
 
   defp maybe_finish(quiz, email) do
     {:reply, {quiz.current_question.asked, quiz.last_response.correct}, {quiz, email}}
+  end
+
+  def via({_title, _email = name}) do
+    {:via, Registry, {QuizApp.Registry.QuizSession, name}}
   end
 end
