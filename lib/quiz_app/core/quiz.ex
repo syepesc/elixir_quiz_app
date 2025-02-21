@@ -55,7 +55,7 @@ defmodule QuizApp.Core.Quiz do
     maybe_advance(new_quiz, mastered?(new_quiz))
   end
 
-  def answer_correct(quiz, %Response{correct: false} = response) do
+  def answer_question(quiz, %Response{correct: false} = response) do
     quiz
     |> reset_record
     |> save_response(response)
