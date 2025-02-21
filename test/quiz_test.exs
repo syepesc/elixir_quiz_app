@@ -34,7 +34,6 @@ defmodule QuizTest do
       |> right_answer()
       |> Quiz.select_question()
       |> assert_more_questions()
-      |> IO.inspect(label: "quiz --->")
       |> wrong_answer()
       |> Quiz.select_question()
       |> assert_more_questions()
