@@ -1,7 +1,15 @@
 defmodule QuizApp do
-  alias QuizApp.Boundary.{QuizManager, QuizSession}
+  alias QuizApp.Boundary.{QuizManager, QuizSession, Proctor}
   alias QuizApp.Boundary.{TemplateValidator, QuizValidator}
   alias QuizApp.Core.Quiz
+
+  def schedule_quiz(quiz, templates, start_at, end_at) do
+    with :ok <- QuizValidator.errors(quiz),
+         true <- Enum.all?(templates, &(:ok == TemplateValidator.errors(&1))),
+         :ok <- Proctor.schedule_quiz(quiz, templates, start_at, end_at),
+         do: :ok,
+         else: (error -> error)
+  end
 
   def build_quiz(fields) do
     with :ok <- QuizValidator.errors(fields),

@@ -20,6 +20,17 @@ defmodule QuizApp.Boundary.QuizSession do
     GenServer.call(via(name), {:answer_question, answer})
   end
 
+  def active_sessions_for(quiz_title) do
+    QuizApp.Supervisor.QuizSession
+    |> DynamicSupervisor.which_children()
+    |> Enum.filter(&child_pid?/1)
+    |> Enum.flat_map(&active_sessions(&1, quiz_title))
+  end
+
+  def end_sessions(names) do
+    Enum.each(names, &GenServer.stop(via(&1)))
+  end
+
   # ###########################################################################
   # GenServer callbacks
   # ###########################################################################
@@ -57,7 +68,16 @@ defmodule QuizApp.Boundary.QuizSession do
     {:reply, {quiz.current_question.asked, quiz.last_response.correct}, {quiz, email}}
   end
 
-  def via({_title, _email = name}) do
+  defp child_pid?({:undefined, pid, :worker, [__MODULE__]}) when is_pid(pid), do: true
+  defp child_pid?(_child), do: false
+
+  defp active_sessions({:undefined, pid, :worker, [__MODULE__]}, title) do
+    QuizApp.Registry.QuizSession
+    |> Registry.keys(pid)
+    |> Enum.filter(fn {quiz_title, _email} -> quiz_title == title end)
+  end
+
+  def via({_title, _email} = name) do
     {:via, Registry, {QuizApp.Registry.QuizSession, name}}
   end
 end

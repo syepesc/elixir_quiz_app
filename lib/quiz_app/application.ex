@@ -8,6 +8,7 @@ defmodule QuizApp.Application do
     children = [
       {QuizApp.Boundary.QuizManager, [name: QuizApp.Boundary.QuizManager]},
       {Registry, [name: QuizApp.Registry.QuizSession, keys: :unique]},
+      {QuizApp.Boundary.Proctor, [name: QuizApp.Boundary.Proctor]},
       {DynamicSupervisor, [name: QuizApp.Supervisor.QuizSession, strategy: :one_for_one]}
     ]
 
